@@ -1,0 +1,1 @@
+create table users (id serial primary key, name varchar(20), email varchar(40), password_hash varchar(40))
