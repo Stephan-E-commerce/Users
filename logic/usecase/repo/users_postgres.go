@@ -6,6 +6,7 @@ import (
 
 	"github.com/stepundel1/E-commerce/Users/logic/entity"
 	"github.com/stepundel1/E-commerce/pkg/postgres"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepo struct {
@@ -13,14 +14,20 @@ type UserRepo struct {
 }
 
 func NewUserRepo(p *postgres.Postgres) *UserRepo {
-	return &UserRepo{p}
+	return &UserRepo{Postgres: p}
 }
 
 func (r *UserRepo) Create(ctx context.Context, user entity.User) error {
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("UserUseCase - Register - bcrypt.GenerateFromPassword: %w", err)
+	}
+
 	sql, args, err := r.Builder.
-		Insert("users").
-		Columns("email", "name", "password_hash").
-		Values(user.Email, user.Name, user.PasswordHash).
+		Insert("userlist").
+		Columns("name", "email", "password_hash").
+		Values(user.Name, user.Email, hashedPassword).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("UserRepo - Create - r.Builder: %w", err)
