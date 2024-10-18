@@ -6,3 +6,9 @@ type User struct {
 	Name         string `json:"name" db:"name"`
 	PasswordHash string `json:"password_hash" db:"password_hash"`
 }
+
+type UserGRPC struct {
+	Name         string
+	Email        string
+	PasswordHash string
+}
