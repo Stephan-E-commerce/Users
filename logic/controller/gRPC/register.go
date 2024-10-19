@@ -1,4 +1,4 @@
-package grpcc
+package controller
 
 import (
 	"context"
@@ -9,18 +9,18 @@ import (
 	"github.com/stepundel1/E-commerce/Users/logic/usecase/repo"
 )
 
-// Реализация gRPC сервера
+// RegisterServer methods gRPC
 type RegisterServer struct {
 	pb.UnimplementedGreeterServer
 	userRepo *repo.UserRepo
 }
 
-// Конструктор для создания нового сервера
-func NewServer(userRepo *repo.UserRepo) *RegisterServer {
+// NewRegisterServer new server
+func NewRegisterServer(userRepo *repo.UserRepo) *RegisterServer {
 	return &RegisterServer{userRepo: userRepo}
 }
 
-// Метод для регистрации пользователя
+// RegisterUser func
 func (s *RegisterServer) RegisterUser(ctx context.Context, in *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	user := entity.User{
 		Name:         in.GetName(),
@@ -28,13 +28,12 @@ func (s *RegisterServer) RegisterUser(ctx context.Context, in *pb.RegisterUserRe
 		PasswordHash: in.GetPassword(),
 	}
 
-	// Создание пользователя через репозиторий
 	err := s.userRepo.Create(ctx, user)
 	if err != nil {
-		log.Printf("Не удалось создать пользователя: %v", err)
+		log.Printf("failed to create user: %v", err)
 		return &pb.RegisterUserResponse{Success: false}, err
 	}
 
-	log.Printf("Пользователь успешно зарегистрирован: %v", in.GetName())
+	log.Printf("User registered successfully: %v", in.GetName())
 	return &pb.RegisterUserResponse{Success: true}, nil
 }
