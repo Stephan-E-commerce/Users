@@ -10,6 +10,7 @@ import (
 	controller "github.com/stepundel1/E-commerce/Users/logic/controller/gRPC"
 	pb "github.com/stepundel1/E-commerce/Users/logic/proto"
 	"github.com/stepundel1/E-commerce/Users/logic/usecase/repo"
+	"github.com/stepundel1/E-commerce/Users/logic/usecase/webapi"
 	"github.com/stepundel1/E-commerce/pkg/postgres"
 	"google.golang.org/grpc"
 )
@@ -43,17 +44,18 @@ func main() {
 
 	// new user repo
 	userRepo := repo.NewUserRepo(pool)
+	userUseCase := webapi.NewUserUseCase(userRepo)
 
 	// grpc server connection
 	s := grpc.NewServer()
 
 	// GreeterServer
-	registerServer := controller.NewRegisterServer(userRepo)
+	registerServer := controller.NewRegisterServer(userUseCase)
 	pb.RegisterGreeterServer(s, registerServer)
 
 	log.Printf("Server %v", lis.Addr())
 
-	// Запуск gRPC сервера
+	// run gRPC server
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("err %v", err)
 	}

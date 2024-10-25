@@ -1,4 +1,4 @@
-package controller
+package gRPC
 
 import (
 	"context"
@@ -6,18 +6,18 @@ import (
 
 	"github.com/stepundel1/E-commerce/Users/logic/entity"
 	pb "github.com/stepundel1/E-commerce/Users/logic/proto"
-	"github.com/stepundel1/E-commerce/Users/logic/usecase/repo"
+	"github.com/stepundel1/E-commerce/Users/logic/usecase/webapi"
 )
 
 // RegisterServer methods gRPC
 type RegisterServer struct {
 	pb.UnimplementedGreeterServer
-	userRepo *repo.UserRepo
+	userUseCase *webapi.UserUseCase
 }
 
 // NewRegisterServer new server
-func NewRegisterServer(userRepo *repo.UserRepo) *RegisterServer {
-	return &RegisterServer{userRepo: userRepo}
+func NewRegisterServer(userUseCase *webapi.UserUseCase) *RegisterServer {
+	return &RegisterServer{userUseCase: userUseCase}
 }
 
 // RegisterUser func
@@ -28,7 +28,7 @@ func (s *RegisterServer) RegisterUser(ctx context.Context, in *pb.RegisterUserRe
 		PasswordHash: in.GetPassword(),
 	}
 
-	err := s.userRepo.Create(ctx, user)
+	err := s.userUseCase.Register(ctx, user, in.GetPassword())
 	if err != nil {
 		log.Printf("failed to create user: %v", err)
 		return &pb.RegisterUserResponse{Success: false}, err
