@@ -9,5 +9,7 @@ import (
 type (
 	UserRepoInterface interface {
 		Create(context.Context, entity.User) error
+
+		GetByEmail(context.Context, string) (entity.User, error)
 	}
 )

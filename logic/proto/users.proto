@@ -10,6 +10,7 @@ package proto;
 service Greeter {
     rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {}
     rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {}
+    rpc VerifyCode (VerifyCodeRequest) returns (VerifyCodeResponse) {}
 }
 
 message RegisterUserRequest {
@@ -28,5 +29,13 @@ message LoginUserRequest {
 }
 
 message LoginUserResponse {
+    bool success = 1;
+}
+
+message VerifyCodeRequest {
+    string email = 1;
+}
+
+message VerifyCodeResponse {
     bool success = 1;
 }

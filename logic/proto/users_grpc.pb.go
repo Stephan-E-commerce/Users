@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.28.0
-// source: Users/internal/proto/users.proto
+// source: users.proto
 
 package grpc
 
@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Greeter_RegisterUser_FullMethodName = "/proto.Greeter/RegisterUser"
 	Greeter_LoginUser_FullMethodName    = "/proto.Greeter/LoginUser"
+	Greeter_VerifyCode_FullMethodName   = "/proto.Greeter/VerifyCode"
 )
 
 // GreeterClient is the client API for Greeter service.
@@ -29,6 +30,7 @@ const (
 type GreeterClient interface {
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
+	VerifyCode(ctx context.Context, in *VerifyCodeRequest, opts ...grpc.CallOption) (*VerifyCodeResponse, error)
 }
 
 type greeterClient struct {
@@ -59,12 +61,23 @@ func (c *greeterClient) LoginUser(ctx context.Context, in *LoginUserRequest, opt
 	return out, nil
 }
 
+func (c *greeterClient) VerifyCode(ctx context.Context, in *VerifyCodeRequest, opts ...grpc.CallOption) (*VerifyCodeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyCodeResponse)
+	err := c.cc.Invoke(ctx, Greeter_VerifyCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility.
 type GreeterServer interface {
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
+	VerifyCode(context.Context, *VerifyCodeRequest) (*VerifyCodeResponse, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedGreeterServer) RegisterUser(context.Context, *RegisterUserReq
 }
 func (UnimplementedGreeterServer) LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginUser not implemented")
+}
+func (UnimplementedGreeterServer) VerifyCode(context.Context, *VerifyCodeRequest) (*VerifyCodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyCode not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 func (UnimplementedGreeterServer) testEmbeddedByValue()                 {}
@@ -138,6 +154,24 @@ func _Greeter_LoginUser_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_VerifyCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).VerifyCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Greeter_VerifyCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).VerifyCode(ctx, req.(*VerifyCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,7 +187,11 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "LoginUser",
 			Handler:    _Greeter_LoginUser_Handler,
 		},
+		{
+			MethodName: "VerifyCode",
+			Handler:    _Greeter_VerifyCode_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "Users/internal/proto/users.proto",
+	Metadata: "users.proto",
 }

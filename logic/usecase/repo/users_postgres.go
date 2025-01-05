@@ -39,3 +39,22 @@ func (r *UserRepo) Create(ctx context.Context, user entity.User) error {
 
 	return nil
 }
+
+func (r *UserRepo) GetByEmail(ctx context.Context, email string) (entity.User, error) {
+	sql, args, err := r.Builder.
+		Select("email", "password_hash").
+		From("userlist").
+		Where("email = ?", email).
+		ToSql()
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - GetByEmail1 - r.Builder: %w", err)
+	}
+
+	var user entity.User
+	err = r.Pool.QueryRow(ctx, sql, args...).Scan(&user.Email, &user.PasswordHash)
+	if err != nil {
+		return entity.User{}, fmt.Errorf("UserRepo - GetByEmail2 - r.Pool.QueryRow: %w", err)
+	}
+
+	return user, nil
+}
